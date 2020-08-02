@@ -4,19 +4,20 @@ use std::io::Result;
 
 #[derive(Debug)]
 pub struct List {
-  path: String,
-  name: String
+  pub path: String,
+  pub name: String
 }
 
 impl List {
-  pub fn new(path: &Path) -> Option<List> {
+  pub fn new<P: AsRef<Path>>(path: P) -> Option<List> {
+    let path = path.as_ref();
     if !path.is_file() {
       return None;
     }
 
     let full_path = path.to_str();
-    let file_stem = path.file_stem().and_then(|file_stem| file_stem.to_str());
-    let extension = path.extension().and_then(|extension| extension.to_str());
+    let file_stem = path.file_stem().and_then(|x| x.to_str());
+    let extension = path.extension().and_then(|x| x.to_str());
 
     match (full_path, file_stem, extension) {
       (Some(full_path), Some(file_stem), Some("tsv")) => Some(
@@ -30,7 +31,7 @@ impl List {
   }
 }
 
-pub fn get_lists(dirname: &str) -> Result<Vec<List>> {
+pub fn get_lists<P: AsRef<Path>>(dirname: P) -> Result<Vec<List>> {
   Ok(
     read_dir(dirname)?
     .filter_map(|entry| entry.ok())

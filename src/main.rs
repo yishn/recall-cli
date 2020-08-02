@@ -3,7 +3,7 @@ extern crate clap;
 mod commands;
 mod list;
 
-use commands::SubCommandDispatcher;
+use commands::{Error, SubCommandDispatcher};
 use clap::{Arg, App, SubCommand};
 
 fn main() {
@@ -47,14 +47,29 @@ fn main() {
       SubCommand::with_name("learn")
       .about("Learn new cards")
       .arg(get_name_arg())
+      .arg(
+        Arg::with_name("count")
+        .short("c")
+        .long("count")
+        .help("The number of new cards you want to learn")
+        .takes_value(true)
+      )
     )
     .get_matches();
 
-  match matches.subcommand() {
+  let result = match matches.subcommand() {
     ("info", Some(matches)) => commands::InfoDispatcher::dispatch(matches),
     ("learn", Some(matches)) => commands::LearnDispatcher::dispatch(matches),
     ("list", Some(matches)) => commands::ListDispatcher::dispatch(matches),
     ("study", Some(matches)) => commands::StudyDispatcher::dispatch(matches),
-    _ => panic!("No subcommand found")
-  }
+    ("", None) => unimplemented!(),
+    _ => Err(Error::new("Subcommand not found"))
+  };
+
+  match result {
+    Err(err) => {
+      println!("recall error: {}", err)
+    },
+    _ => {}
+  };
 }
