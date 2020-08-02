@@ -1,11 +1,11 @@
 use std::fs::read_dir;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::io::Result;
 
 #[derive(Debug)]
 pub struct List {
-  pub path: String,
-  pub name: String
+  path: PathBuf,
+  name: String
 }
 
 impl List {
@@ -22,12 +22,20 @@ impl List {
     match (full_path, file_stem, extension) {
       (Some(full_path), Some(file_stem), Some("tsv")) => Some(
         List {
-          path: full_path.to_string(),
+          path: Path::new(full_path).to_path_buf(),
           name: file_stem.to_string()
         }
       ),
       _ => None
     }
+  }
+
+  pub fn path(&self) -> &Path {
+    &self.path
+  }
+
+  pub fn name(&self) -> &str {
+    &self.name
   }
 }
 

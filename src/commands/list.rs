@@ -1,6 +1,6 @@
 use clap::{ArgMatches};
 use super::{Error, Result, SubCommandDispatcher};
-use crate::list;
+use crate::list::{List, get_lists};
 
 pub struct Dispatcher {}
 
@@ -10,7 +10,7 @@ impl SubCommandDispatcher for Dispatcher {
       ("", None) => {
         // Get lists
 
-        let lists = list::get_lists(".")
+        let lists = get_lists(".")
           .map_err(|_| Error::new("Unable to read from working directory"))?;
 
         println!();
@@ -19,7 +19,7 @@ impl SubCommandDispatcher for Dispatcher {
 
         if lists.len() > 0 {
           for list in lists {
-            println!("* {}", list.name);
+            println!("* {}", list.name());
           }
         } else {
           println!("No lists found.");

@@ -1,7 +1,6 @@
-extern crate clap;
-
 mod commands;
 mod list;
+mod card;
 
 use commands::{Error, SubCommandDispatcher};
 use clap::{Arg, App, SubCommand};
@@ -27,6 +26,14 @@ fn main() {
       .subcommand(
         SubCommand::with_name("remove")
         .about("Removes an existing list")
+        .arg(
+          get_name_arg()
+          .required(true)
+        )
+      )
+      .subcommand(
+        SubCommand::with_name("append")
+        .about("Adds a new card to an existing list")
         .arg(
           get_name_arg()
           .required(true)
