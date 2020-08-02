@@ -1,0 +1,13 @@
+[package]
+name = "recall-cli"
+version = "0.1.0"
+authors = ["Yichuan Shen <shen.yichuan@gmail.com>"]
+edition = "2018"
+description = "A simple spaced repetition system CLI app."
+repository = "https://github.com/yishn/recall-cli.git"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = "2.33.1"
