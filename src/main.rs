@@ -3,9 +3,8 @@ mod commands;
 mod list;
 mod card;
 
-use commands::{Error, SubCommandDispatcher};
+use commands::{RecallError, SubCommandDispatcher};
 use clap::{Arg, App, SubCommand};
-use colored::Colorize;
 
 fn main() {
   let get_name_arg = || Arg::with_name("name").help("Name of the list");
@@ -14,34 +13,7 @@ fn main() {
     .author(env!("CARGO_PKG_AUTHORS"))
     .version(env!("CARGO_PKG_VERSION"))
     .about(env!("CARGO_PKG_DESCRIPTION"))
-    .subcommand(
-      SubCommand::with_name("list")
-      .about("Shows and manages lists")
-      .subcommand(
-        SubCommand::with_name("add")
-        .about("Adds a new list")
-        .arg(
-          get_name_arg()
-          .required(true)
-        )
-      )
-      .subcommand(
-        SubCommand::with_name("remove")
-        .about("Removes an existing list")
-        .arg(
-          get_name_arg()
-          .required(true)
-        )
-      )
-      .subcommand(
-        SubCommand::with_name("append")
-        .about("Adds a new card to an existing list")
-        .arg(
-          get_name_arg()
-          .required(true)
-        )
-      )
-    )
+    .subcommand(commands::list::subcommand())
     .subcommand(
       SubCommand::with_name("info")
       .about("Shows overall progress on all lists or a specific one")
@@ -67,12 +39,12 @@ fn main() {
     .get_matches();
 
   let result = match matches.subcommand() {
-    ("info", Some(matches)) => commands::InfoDispatcher::dispatch(matches),
-    ("learn", Some(matches)) => commands::LearnDispatcher::dispatch(matches),
-    ("list", Some(matches)) => commands::ListDispatcher::dispatch(matches),
-    ("study", Some(matches)) => commands::StudyDispatcher::dispatch(matches),
+    ("info", Some(matches)) => commands::info::Dispatcher::dispatch(matches),
+    ("learn", Some(matches)) => commands::learn::Dispatcher::dispatch(matches),
+    ("list", Some(matches)) => commands::list::Dispatcher::dispatch(matches),
+    ("study", Some(matches)) => commands::study::Dispatcher::dispatch(matches),
     ("", None) => unimplemented!(),
-    _ => Err(Error::new("Subcommand not found"))
+    _ => Err(RecallError::new("Subcommand not found"))
   };
 
   match result {

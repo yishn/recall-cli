@@ -1,7 +1,38 @@
-use clap::{ArgMatches};
-use super::{Error, Result, SubCommandDispatcher};
+use clap::{ArgMatches, App, Arg, SubCommand};
+use super::{RecallError, Result, SubCommandDispatcher};
 use crate::list::{List, get_lists};
 use crate::cli;
+
+pub fn subcommand<'a>() -> App<'a, 'static> {
+  let get_name_arg = || Arg::with_name("name").help("Name of the list");
+
+  SubCommand::with_name("list")
+  .about("Shows and manages lists")
+  .subcommand(
+    SubCommand::with_name("add")
+    .about("Adds a new list")
+    .arg(
+      get_name_arg()
+      .required(true)
+    )
+  )
+  .subcommand(
+    SubCommand::with_name("remove")
+    .about("Removes an existing list")
+    .arg(
+      get_name_arg()
+      .required(true)
+    )
+  )
+  .subcommand(
+    SubCommand::with_name("append")
+    .about("Appends a new card to an existing list")
+    .arg(
+      get_name_arg()
+      .required(true)
+    )
+  )
+}
 
 pub struct Dispatcher {}
 
@@ -12,7 +43,7 @@ impl SubCommandDispatcher for Dispatcher {
         // Get lists
 
         let lists = get_lists(".")
-          .map_err(|_| Error::new("Unable to read from working directory"))?;
+          .map_err(|_| RecallError::new("Unable to read from working directory"))?;
 
         println!();
         cli::print_header_strip("Lists");

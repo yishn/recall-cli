@@ -1,35 +1,34 @@
-use clap::ArgMatches;
 use std::fmt::Display;
+use std::error::Error;
+use clap::ArgMatches;
 
-mod info;
-mod learn;
-mod list;
-mod study;
+pub mod info;
+pub mod learn;
+pub mod list;
+pub mod study;
 
-pub use info::Dispatcher as InfoDispatcher;
-pub use learn::Dispatcher as LearnDispatcher;
-pub use list::Dispatcher as ListDispatcher;
-pub use study::Dispatcher as StudyDispatcher;
-
-pub struct Error {
+#[derive(Debug)]
+pub struct RecallError {
   pub message: &'static str
 }
 
-impl Display for Error {
+impl Error for RecallError {}
+
+impl Display for RecallError {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", self.message)
   }
 }
 
-impl Error {
-  pub fn new(message: &'static str) -> Error {
-    Error {
+impl RecallError {
+  pub fn new(message: &'static str) -> RecallError {
+    RecallError {
       message
     }
   }
 }
 
-pub type Result = std::result::Result<(), Error>;
+pub type Result = std::result::Result<(), RecallError>;
 
 pub trait SubCommandDispatcher {
   fn dispatch(matches: &ArgMatches) -> Result;

@@ -17,7 +17,7 @@ pub fn print_help_strip<T: Display>(text: T) {
   print_strip("?".blue().bold(), text);
 }
 
-pub fn print_bullet_list<D: Display, I: IntoIterator<Item=D>>(list: I) {
+pub fn print_bullet_list<D: Display, I: IntoIterator<Item = D>>(list: I) {
   for item in list {
     print_strip("*".bright_black(), item);
   }

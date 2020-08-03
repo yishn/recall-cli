@@ -1,6 +1,6 @@
 use chrono::{offset::Utc, DateTime, Duration};
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Proficiency {
   Inactive,
   Apprentice,
@@ -10,14 +10,16 @@ pub enum Proficiency {
   Burned
 }
 
+#[derive(Debug)]
 pub struct Card {
-  front: String,
-  back: String,
-  notes: String,
-  level: i8,
-  last_study_time: Option<DateTime<Utc>>,
-  correct_count: u32,
-  total_count: u32,
+  pub front: String,
+  pub back: String,
+  pub notes: String,
+  pub level: i8,
+  pub last_study_time: Option<DateTime<Utc>>,
+  pub correct_count: u32,
+  pub total_count: u32,
+  phantom: ()
 }
 
 impl Card {
@@ -29,12 +31,9 @@ impl Card {
       level: 0,
       last_study_time: None,
       correct_count: 0,
-      total_count: 0
+      total_count: 0,
+      phantom: ()
     }
-  }
-
-  pub fn data(&self) -> (&str, &str, &str) {
-    (&self.front, &self.back, &self.notes)
   }
 
   pub fn proficiency(&self) -> Proficiency {
@@ -48,10 +47,6 @@ impl Card {
     }
   }
 
-  pub fn last_study_time(&self) -> Option<DateTime<Utc>> {
-    self.last_study_time
-  }
-
   pub fn due_time(&self) -> Option<DateTime<Utc>> {
     let duration = match self.level {
       x if x <= 0 => return None,
@@ -62,7 +57,6 @@ impl Card {
       x if x == 5 => Duration::days(7),
       x if x == 6 => Duration::days(14),
       x if x == 7 => Duration::days(30),
-      x if x == 8 => Duration::days(122),
       _ => Duration::days(122),
     };
 
@@ -71,7 +65,7 @@ impl Card {
 
   pub fn correctness(&self) -> f64 {
     if self.total_count == 0 {
-      0.0
+      1.0
     } else {
       self.correct_count as f64 / self.total_count as f64
     }
@@ -85,21 +79,6 @@ impl Card {
 
   pub fn is_due(&self) -> bool {
     self.due_time().map(|x| x >= Utc::now()).unwrap_or(false)
-  }
-
-  pub fn set_front(&mut self, front: &str) -> &mut Card {
-    self.front = front.to_string();
-    self
-  }
-
-  pub fn set_back(&mut self, back: &str) -> &mut Card {
-    self.back = back.to_string();
-    self
-  }
-
-  pub fn set_notes(&mut self, notes: &str) -> &mut Card {
-    self.notes = notes.to_string();
-    self
   }
 
   pub fn advance_level(&mut self) -> &mut Card {
