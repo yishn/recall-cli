@@ -1,6 +1,6 @@
 use clap::{ArgMatches, App, Arg, SubCommand};
 use super::{RecallError, Result, SubCommandDispatcher};
-use crate::list::{List, get_lists};
+use crate::list::get_lists;
 use crate::cli;
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
@@ -34,7 +34,7 @@ pub fn subcommand<'a>() -> App<'a, 'static> {
   )
 }
 
-pub struct Dispatcher {}
+pub struct Dispatcher;
 
 impl SubCommandDispatcher for Dispatcher {
   fn dispatch(matches: &ArgMatches) -> Result {
