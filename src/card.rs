@@ -1,4 +1,3 @@
-use std::cmp;
 use chrono::{offset::Utc, DateTime, Duration};
 
 #[derive(Debug, Eq, PartialEq)]
@@ -105,14 +104,14 @@ impl Card {
 
   pub fn advance_level(&mut self) -> &mut Card {
     if self.proficiency() != Proficiency::Inactive {
-      self.level = cmp::min(self.level + 1, 9);
+      self.level = 9.min(self.level + 1);
     }
     self
   }
 
   pub fn fallback_level(&mut self) -> &mut Card {
     if self.proficiency() != Proficiency::Inactive {
-      self.level = cmp::max(self.level - 2, 1);
+      self.level = 1.max(self.level - 2);
     }
     self
   }

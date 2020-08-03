@@ -12,3 +12,4 @@ license = "MIT"
 [dependencies]
 clap = "2.33.1"
 chrono = "0.4"
+colored = "2.0.0"

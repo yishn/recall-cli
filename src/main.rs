@@ -1,9 +1,11 @@
+mod cli;
 mod commands;
 mod list;
 mod card;
 
 use commands::{Error, SubCommandDispatcher};
 use clap::{Arg, App, SubCommand};
+use colored::Colorize;
 
 fn main() {
   let get_name_arg = || Arg::with_name("name").help("Name of the list");
@@ -75,7 +77,7 @@ fn main() {
 
   match result {
     Err(err) => {
-      println!("recall error: {}", err)
+      cli::print_error_strip(err);
     },
     _ => {}
   };
