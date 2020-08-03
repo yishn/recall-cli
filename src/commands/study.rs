@@ -1,20 +1,19 @@
 use clap::{ArgMatches, App, Arg, SubCommand};
-use super::{Result, SubCommandDispatcher};
+use super::Result;
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
-  let get_name_arg = || Arg::with_name("name").help("Name of the list");
-
   SubCommand::with_name("study")
   .about("Starts a study session")
-  .arg(get_name_arg())
+  .arg(
+    Arg::with_name("names")
+    .help("Name of the lists to study")
+    .multiple(true)
+    .required(true)
+  )
 }
 
-pub struct Dispatcher;
+pub fn dispatch(matches: &ArgMatches) -> Result {
+  Some(matches);
 
-impl SubCommandDispatcher for Dispatcher {
-  fn dispatch(matches: &ArgMatches) -> Result {
-    Some(matches);
-
-    Ok(())
-  }
+  Ok(())
 }

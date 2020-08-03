@@ -1,20 +1,19 @@
 use clap::{ArgMatches, SubCommand, App, Arg};
-use super::{Result, SubCommandDispatcher};
+use super::Result;
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
-  let get_name_arg = || Arg::with_name("name").help("Name of the list");
-
   SubCommand::with_name("info")
   .about("Shows overall progress on all lists or a specific one")
-  .arg(get_name_arg())
+  .arg(
+    Arg::with_name("names")
+    .help("Name of the lists to see")
+    .multiple(true)
+    .required(true)
+  )
 }
 
-pub struct Dispatcher;
+pub fn dispatch(matches: &ArgMatches) -> Result {
+  Some(matches);
 
-impl SubCommandDispatcher for Dispatcher {
-  fn dispatch(matches: &ArgMatches) -> Result {
-    Some(matches);
-
-    Ok(())
-  }
+  Ok(())
 }

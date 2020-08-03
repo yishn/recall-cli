@@ -1,4 +1,4 @@
-use std::fs::{read_dir, File};
+use std::fs::{read_dir, remove_file, File};
 use std::path::{Path, PathBuf};
 use std::io::{BufReader, BufRead, BufWriter, Write, Result};
 use chrono::{Utc, DateTime};
@@ -14,16 +14,15 @@ pub struct List {
 impl List {
   pub fn new<P: AsRef<Path>>(path: P) -> Option<List> {
     let path = path.as_ref();
-    if !path.is_file() {
+    if path.is_dir() {
       return None;
     }
 
     let full_path = path.to_str();
     let file_stem = path.file_stem().and_then(|x| x.to_str());
-    let extension = path.extension().and_then(|x| x.to_str());
 
-    match (full_path, file_stem, extension) {
-      (Some(full_path), Some(file_stem), Some("jsonl")) => Some(
+    match (full_path, file_stem) {
+      (Some(full_path), Some(file_stem)) => Some(
         List {
           path: Path::new(full_path).to_path_buf(),
           name: file_stem.to_string()
@@ -87,12 +86,11 @@ impl List {
     )
   }
 
-  pub fn save_cards<I: IntoIterator<Item = Card>>(&mut self, cards: I) -> Result<()> {
+  pub fn save_cards<I: IntoIterator<Item = Card>>(&self, cards: I) -> Result<()> {
     let file = File::create(self.path())?;
     let mut buf_writer = BufWriter::new(file);
 
     let lines = cards.into_iter()
-      .inspect(|card| println!("{:?}", card))
       .map(|card| {
         serde_json::to_string(&json!([
           card.front,
@@ -112,13 +110,27 @@ impl List {
     buf_writer.flush()?;
     Ok(())
   }
+
+  pub fn delete(&self) -> Result<()> {
+    remove_file(self.path())?;
+
+    Ok(())
+  }
 }
 
 pub fn get_lists<P: AsRef<Path>>(dirname: P) -> Result<Vec<List>> {
   Ok(
     read_dir(dirname)?
     .filter_map(|entry| entry.ok())
-    .filter_map(|entry| List::new(&entry.path()))
+    .map(|entry| entry.path())
+    .filter(|path| path.extension().and_then(|x| x.to_str()) == Some("jsonl"))
+    .filter_map(|path| List::new(&path))
     .collect()
   )
+}
+
+pub fn list_exists<P: AsRef<Path>>(dirname: P, name: &str) -> bool {
+  get_lists(dirname).ok()
+  .map(|lists| lists.into_iter().any(|list| list.name() == name))
+  .unwrap_or(false)
 }

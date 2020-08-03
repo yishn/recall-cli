@@ -1,6 +1,5 @@
 use std::fmt::Display;
 use std::error::Error;
-use clap::ArgMatches;
 
 pub mod info;
 pub mod learn;
@@ -29,7 +28,3 @@ impl RecallError {
 }
 
 pub type Result = std::result::Result<(), RecallError>;
-
-pub trait SubCommandDispatcher {
-  fn dispatch(matches: &ArgMatches) -> Result;
-}
