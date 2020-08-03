@@ -1,3 +1,4 @@
+mod app;
 mod cli;
 mod commands;
 mod list;
@@ -7,10 +8,10 @@ use commands::RecallError;
 use clap::App;
 
 fn main() {
-  let mut app = App::new(env!("CARGO_PKG_NAME"))
-    .author(env!("CARGO_PKG_AUTHORS"))
-    .version(env!("CARGO_PKG_VERSION"))
-    .about(env!("CARGO_PKG_DESCRIPTION"))
+  let mut app = App::new(app::name())
+    .author(app::author())
+    .version(app::version())
+    .about(app::description())
     .subcommand(commands::list::subcommand())
     .subcommand(commands::info::subcommand())
     .subcommand(commands::study::subcommand())

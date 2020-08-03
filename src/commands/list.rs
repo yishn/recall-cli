@@ -1,7 +1,7 @@
 use clap::{ArgMatches, App, Arg, SubCommand};
 use super::{RecallError, Result};
+use crate::{app, cli};
 use crate::list::{List, get_lists, list_exists};
-use crate::cli;
 use crate::card::Card;
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
@@ -149,7 +149,7 @@ fn list(_matches: &ArgMatches) -> Result {
   cli::print_help_strip(
     format!(
       "Add a new list by calling {}.",
-      cli::inline_code("recall list add <name>")
+      cli::inline_code(format!("{} list add <name>", app::name()))
     ),
   );
   println!();

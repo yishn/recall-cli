@@ -14,7 +14,7 @@ pub fn subcommand<'a>() -> App<'a, 'static> {
     Arg::with_name("count")
     .short("c")
     .long("count")
-    .help("The number of new cards you want to learn")
+    .help("The maximum number of new cards you want to learn")
     .takes_value(true)
   )
 }

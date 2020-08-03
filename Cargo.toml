@@ -1,5 +1,5 @@
 [package]
-name = "recall-cli"
+name = "recall"
 version = "0.1.0"
 authors = ["Yichuan Shen <shen.yichuan@gmail.com>"]
 edition = "2018"
