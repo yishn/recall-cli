@@ -1,6 +1,9 @@
-use chrono::{offset::Utc, DateTime, Duration};
+use chrono::{offset::Utc, DateTime, Duration, TimeZone};
+use crate::list::List;
+use std::fmt::Display;
+use colored::{ColoredString, Colorize};
 
-#[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum Proficiency {
   Inactive,
   Apprentice,
@@ -8,6 +11,43 @@ pub enum Proficiency {
   Master,
   Enlightened,
   Burned
+}
+
+impl Proficiency {
+  pub fn colorize(&self, text: &str) -> ColoredString {
+    match self {
+      Proficiency::Inactive => text.bright_black(),
+      Proficiency::Apprentice => text.bright_red(),
+      Proficiency::Guru => text.bright_yellow(),
+      Proficiency::Master => text.bright_cyan(),
+      Proficiency::Enlightened => text.bright_blue(),
+      Proficiency::Burned => text.bright_purple()
+    }
+  }
+}
+
+impl Display for Proficiency {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    f.pad(match self {
+      Proficiency::Inactive => "Inactive",
+      Proficiency::Apprentice => "Apprentice",
+      Proficiency::Guru => "Guru",
+      Proficiency::Master => "Master",
+      Proficiency::Enlightened => "Enlightened",
+      Proficiency::Burned => "Burned"
+    })
+  }
+}
+
+pub fn list_proficiencies() -> Vec<Proficiency> {
+  vec![
+    Proficiency::Inactive,
+    Proficiency::Apprentice,
+    Proficiency::Guru,
+    Proficiency::Master,
+    Proficiency::Enlightened,
+    Proficiency::Burned
+  ]
 }
 
 #[derive(Debug)]
@@ -78,7 +118,11 @@ impl Card {
   }
 
   pub fn is_due(&self) -> bool {
-    self.due_time().map(|x| x >= Utc::now()).unwrap_or(false)
+    self.is_due_in(Utc::now())
+  }
+
+  pub fn is_due_in<T: TimeZone>(&self, date_time: DateTime<T>) -> bool {
+    self.due_time().map(|x| x >= date_time).unwrap_or(false)
   }
 
   pub fn advance_level(&mut self) -> &mut Card {
@@ -117,4 +161,10 @@ impl Card {
     }
     self
   }
+}
+
+pub fn get_cards<I: IntoIterator<Item = List>>(lists: I) -> impl Iterator<Item = Card> {
+  lists.into_iter()
+  .filter_map(|list| list.cards().ok())
+  .flatten()
 }

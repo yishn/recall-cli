@@ -4,7 +4,7 @@ use std::error::Error;
 pub mod info;
 pub mod learn;
 pub mod list;
-pub mod study;
+pub mod review;
 
 #[derive(Debug)]
 pub struct RecallError {

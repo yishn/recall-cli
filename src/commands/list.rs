@@ -130,7 +130,8 @@ fn list(_matches: &ArgMatches) -> Result {
   // Get lists
 
   let lists = get_lists(".")
-    .map_err(|_| RecallError::new("Unable to read from working directory"))?;
+    .map_err(|_| RecallError::new("Unable to read from working directory"))?
+    .collect::<Vec<_>>();
 
   println!();
   cli::print_header_strip("Lists");

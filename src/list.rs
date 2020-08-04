@@ -118,14 +118,13 @@ impl List {
   }
 }
 
-pub fn get_lists<P: AsRef<Path>>(dirname: P) -> Result<Vec<List>> {
+pub fn get_lists<P: AsRef<Path>>(dirname: P) -> Result<impl Iterator<Item = List>> {
   Ok(
     read_dir(dirname)?
     .filter_map(|entry| entry.ok())
     .map(|entry| entry.path())
     .filter(|path| path.extension().and_then(|x| x.to_str()) == Some("jsonl"))
     .filter_map(|path| List::new(&path))
-    .collect()
   )
 }
 
