@@ -104,15 +104,15 @@ fn append(matches: &ArgMatches) -> Result {
 
   println!();
 
-  let front = cli::prompt("Front");
+  let front = cli::prompt("Front")?;
   let duplicate = cards.iter().any(|card| card.front == front);
 
   if duplicate {
     return Err(RecallError::new("Duplicate entry detected."));
   }
 
-  let back = cli::prompt_multiline("Back");
-  let notes = cli::prompt_multiline("Notes");
+  let back = cli::prompt_multiline("Back")?;
+  let notes = cli::prompt_multiline("Notes")?;
   let new_card = Card::new(front, back, notes);
 
   cards.push(new_card);

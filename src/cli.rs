@@ -1,6 +1,7 @@
 use std::fmt::Display;
 use colored::Colorize;
 use rustyline::{error::ReadlineError, Editor, KeyPress, Cmd};
+use crate::commands::RecallError;
 
 pub fn print_strip<S: Display, T: Display>(symbol: S, text: T) {
   println!("{} {}", symbol, text);
@@ -24,20 +25,21 @@ pub fn print_bullet_list<D: Display, I: IntoIterator<Item = D>>(list: I) {
   }
 }
 
-pub fn prompt<T: Display>(text: T) -> String {
+pub fn prompt<T: Display>(text: T) -> Result<String, RecallError> {
   println!("{}:", text.to_string().bright_white());
 
   let mut editor = Editor::<()>::new();
 
   editor.readline("> ")
+  .map(|x| Ok(x))
   .unwrap_or_else(|err| match err {
-    ReadlineError::Eof => String::new(),
+    ReadlineError::Eof => Ok(String::new()),
     ReadlineError::Interrupted => std::process::exit(130),
-    err => panic!(err)
+    _ => Err(RecallError::new("Unable to prompt user."))
   })
 }
 
-pub fn prompt_multiline<T: Display>(text: T) -> String {
+pub fn prompt_multiline<T: Display>(text: T) -> Result<String, RecallError> {
   println!("{}: {}", text.to_string().bright_white(), "(Press ^D to finish)".cyan());
 
   let mut editor = Editor::<()>::new();
@@ -46,10 +48,11 @@ pub fn prompt_multiline<T: Display>(text: T) -> String {
   editor.bind_sequence(KeyPress::Ctrl('D'), Cmd::AcceptLine);
 
   editor.readline("> ")
+  .map(|x| Ok(x))
   .unwrap_or_else(|err| match err {
-    ReadlineError::Eof => String::new(),
+    ReadlineError::Eof => Ok(String::new()),
     ReadlineError::Interrupted => std::process::exit(130),
-    err => panic!(err)
+    _ => Err(RecallError::new("Unable to prompt user."))
   })
 }
 
