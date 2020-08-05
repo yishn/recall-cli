@@ -3,7 +3,12 @@ use clap::{ArgMatches, SubCommand, App, Arg};
 use chrono::{Utc, Duration};
 use humantime::format_duration;
 use super::{RecallError, Result};
-use crate::{card::{get_cards, list_proficiencies}, list::{list_exists, get_lists}, cli, app};
+use crate::{
+  card::{get_cards, list_proficiencies},
+  list::{list_exists, get_lists},
+  cli,
+  app
+};
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
   SubCommand::with_name("info")
@@ -79,6 +84,15 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   let critical_count = cards.iter()
     .filter(|card| card.critical())
     .count();
+  let has_correctness_cards = cards.iter()
+    .filter_map(|card| card.correctness())
+    .collect::<Vec<_>>();
+  let average_correctness = if has_correctness_cards.len() == 0 {
+    None
+  } else {
+    Some(has_correctness_cards.iter().sum::<f64>()
+      / has_correctness_cards.len() as f64)
+  };
 
   let due_time = cards.iter()
     .filter_map(|card| card.due_time())
@@ -105,7 +119,8 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     .collect::<Vec<_>>();
 
   let inactive_count = count_by_proficiencies[0].1;
-  let col1_width = 14;
+
+  let col1_width = 19;
   let col2_width = count_by_proficiencies.iter()
     .map(|(_, count)| count.to_string().len())
     .max()
@@ -143,12 +158,26 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   println!();
   print_row("Due Tomorrow".to_string(), due_tomorrow_count.to_string());
   println!();
+
+  println!();
+  print_row("Criticals".to_string(), critical_count.to_string());
+  println!();
+  print_row(
+    "Average Correctness".to_string(),
+    average_correctness
+      .map(|x| (x * 100.0).round() as u32)
+      .map(|x| x.to_string() + "%")
+      .unwrap_or("-".to_string())
+  );
+  println!();
   println!();
 
   count_by_proficiencies.iter()
     .for_each(|&(proficiency, count)| {
       print_row(
-        proficiency.colorize(&format!("{:>14}", proficiency.to_string())).to_string(),
+        proficiency.colorize(
+          &format!("{:>width$}", proficiency.to_string(), width = col1_width)
+        ).to_string(),
         count.to_string()
       );
 
