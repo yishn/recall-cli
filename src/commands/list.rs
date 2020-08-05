@@ -73,7 +73,7 @@ fn remove(matches: &ArgMatches) -> Result {
 
   for name in names {
     if !list_exists(".", name) {
-      cli::print_error_strip(format!("List '{}' does not exist.", name));
+      cli::print_error_strip(format_args!("List '{}' does not exist.", name));
       continue;
     }
 
@@ -148,9 +148,9 @@ fn list(_matches: &ArgMatches) -> Result {
 
   println!();
   cli::print_help_strip(
-    format!(
+    format_args!(
       "Add a new list by calling {}.",
-      cli::inline_code(format!("{} list add <name>", app::name()))
+      cli::inline_code(format_args!("{} list add <name>", app::name()))
     ),
   );
   println!();

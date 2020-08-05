@@ -31,16 +31,16 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     println!();
 
     cli::print_help_strip(
-      format!(
+      format_args!(
         "Execute {} to get all lists",
-        cli::inline_code(format!("{} list", app::name()))
+        cli::inline_code(format_args!("{} list", app::name()))
       )
     );
 
     cli::print_help_strip(
-      format!(
+      format_args!(
         "Execute {} to add a new list",
-        cli::inline_code(format!("{} list add <name>", app::name()))
+        cli::inline_code(format_args!("{} list add <name>", app::name()))
       )
     );
 
@@ -66,15 +66,19 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     println!();
 
     cli::print_help_strip(
-      format!(
+      format_args!(
         "Execute {} to append new card to an existing list.",
-        cli::inline_code(format!("{} list append <name>", app::name()))
+        cli::inline_code(format_args!("{} list append <name>", app::name()))
       )
     );
 
     println!();
     return Ok(());
   }
+
+  let critical_count = cards.iter()
+    .filter(|card| card.critical())
+    .count();
 
   let due_time = cards.iter()
     .filter_map(|card| card.due_time())
@@ -95,11 +99,12 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     .map(|proficiency| (
       proficiency,
       cards.iter()
-        .filter(move |card| card.proficiency() == proficiency)
+        .filter(|card| &card.proficiency() == &proficiency)
         .count()
     ))
     .collect::<Vec<_>>();
 
+  let inactive_count = count_by_proficiencies[0].1;
   let col1_width = 14;
   let col2_width = count_by_proficiencies.iter()
     .map(|(_, count)| count.to_string().len())
@@ -154,17 +159,17 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
 
   if due_count > 0 {
     cli::print_help_strip(
-      format!(
+      format_args!(
         "Execute {} to start a review session.",
-        cli::inline_code(format!("{} review{}", app::name(), names_args))
+        cli::inline_code(format_args!("{} review{}", app::name(), names_args))
       )
     );
     println!();
-  } else if due_time.is_none() {
+  } else if due_time.is_none() && inactive_count > 0 {
     cli::print_help_strip(
-      format!(
+      format_args!(
         "Execute {} to learn some inactive cards.",
-        cli::inline_code(format!("{} learn{}", app::name(), names_args))
+        cli::inline_code(format_args!("{} learn{}", app::name(), names_args))
       )
     );
     println!();

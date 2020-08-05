@@ -103,18 +103,18 @@ impl Card {
     self.last_study_time.map(|x| x + duration)
   }
 
-  pub fn correctness(&self) -> f64 {
+  pub fn correctness(&self) -> Option<f64> {
     if self.total_count == 0 {
-      1.0
+      None
     } else {
-      self.correct_count as f64 / self.total_count as f64
+      Some(self.correct_count as f64 / self.total_count as f64)
     }
   }
 
   pub fn critical(&self) -> bool {
     self.proficiency() == Proficiency::Apprentice
     && self.total_count > 0
-    && self.correctness() < 0.75
+    && self.correctness() < Some(0.75)
   }
 
   pub fn is_due(&self) -> bool {
@@ -129,6 +129,7 @@ impl Card {
     if self.proficiency() != Proficiency::Inactive {
       self.level = 9.min(self.level + 1);
     }
+
     self
   }
 
@@ -136,6 +137,7 @@ impl Card {
     if self.proficiency() != Proficiency::Inactive {
       self.level = 1.max(self.level - 2);
     }
+
     self
   }
 
@@ -144,6 +146,7 @@ impl Card {
       self.level = 1;
       self.last_study_time = Some(Utc::now());
     }
+
     self
   }
 
@@ -159,6 +162,7 @@ impl Card {
       self.total_count += 1;
       self.last_study_time = Some(Utc::now());
     }
+
     self
   }
 }
