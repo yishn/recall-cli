@@ -185,7 +185,7 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     .for_each(|&(proficiency, count)| {
       print_row(
         proficiency.colorize(
-          &format!("{:>width$}", proficiency.to_string(), width = col1_width)
+          format!("{:>width$}", proficiency.to_string(), width = col1_width)
         ).to_string(),
         count.to_string()
       );

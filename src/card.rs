@@ -14,7 +14,9 @@ pub enum Proficiency {
 }
 
 impl Proficiency {
-  pub fn colorize(&self, text: &str) -> ColoredString {
+  pub fn colorize<S: AsRef<str>>(&self, text: S) -> ColoredString {
+    let text = text.as_ref();
+
     match self {
       Proficiency::Inactive => text.bright_black(),
       Proficiency::Apprentice => text.bright_red(),
@@ -127,17 +129,11 @@ impl Card {
     self
   }
 
-  pub fn learn(&mut self) -> &mut Card {
+  pub fn review(&mut self, remembered: bool) -> &mut Card {
     if self.proficiency() == Proficiency::Inactive {
       self.level = 1;
       self.due_time = Some(Utc::now() + Duration::hours(4));
-    }
-
-    self
-  }
-
-  pub fn study(&mut self, remembered: bool) -> &mut Card {
-    if self.proficiency() != Proficiency::Inactive {
+    } else {
       if remembered {
         self.advance_level();
         self.correct_count += 1;
