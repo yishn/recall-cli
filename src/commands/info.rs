@@ -138,6 +138,13 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
 
   println!();
   cli::print_header_strip("Info");
+
+  if let Some(names) = names {
+    println!("Lists: {}", names.join(", "));
+  } else {
+    println!("All lists");
+  }
+
   println!();
 
   if due_count > 0 {
