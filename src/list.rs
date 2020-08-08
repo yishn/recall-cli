@@ -46,9 +46,13 @@ impl List {
 
     Ok(
       buf_reader.lines()
-      .filter_map(|line| line.ok())
-      .filter_map(|line| serde_json::from_str::<Vec<Value>>(&line).ok())
-      .map(|arr| {
+      .enumerate()
+      .filter_map(|(i, line)| line.ok().map(|line| (i + 1, line)))
+      .filter_map(|(i, line)| {
+        serde_json::from_str::<Vec<Value>>(&line).ok()
+        .map(|line| (i, line))
+      })
+      .map(|(i, arr)| {
         let mut iter = arr.into_iter();
 
         let front = iter.next()
@@ -76,6 +80,7 @@ impl List {
 
         let mut card = Card::new(front, back, notes);
 
+        card.line_number = Some(i);
         card.level = level;
         card.due_time = due_time;
         card.correct_count = correct_count;

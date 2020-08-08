@@ -1,6 +1,6 @@
 use chrono::{offset::Utc, DateTime, Duration, TimeZone};
 use crate::list::List;
-use std::fmt::Display;
+use std::{path::PathBuf, fmt::Display};
 use colored::{ColoredString, Colorize};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -52,6 +52,7 @@ pub fn list_proficiencies() -> Vec<Proficiency> {
 
 #[derive(Debug)]
 pub struct Card {
+  pub line_number: Option<usize>,
   pub front: String,
   pub back: String,
   pub notes: String,
@@ -65,6 +66,7 @@ pub struct Card {
 impl Card {
   pub fn new(front: String, back: String, notes: String) -> Card {
     Card {
+      line_number: None,
       front,
       back,
       notes,
