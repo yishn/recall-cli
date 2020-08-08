@@ -95,7 +95,7 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   };
 
   let due_time = cards.iter()
-    .filter_map(|card| card.due_time())
+    .filter_map(|card| card.due_time)
     .min();
   let due_count = cards.iter().filter(|card| card.is_due()).count();
   let due_next_hour_count = cards.iter()

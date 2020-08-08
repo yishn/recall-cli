@@ -56,7 +56,7 @@ pub struct Card {
   pub back: String,
   pub notes: String,
   pub level: i8,
-  pub last_study_time: Option<DateTime<Utc>>,
+  pub due_time: Option<DateTime<Utc>>,
   pub correct_count: u32,
   pub total_count: u32,
   phantom: ()
@@ -69,7 +69,7 @@ impl Card {
       back,
       notes,
       level: 0,
-      last_study_time: None,
+      due_time: None,
       correct_count: 0,
       total_count: 0,
       phantom: ()
@@ -85,22 +85,6 @@ impl Card {
       x if x <= 8 => Proficiency::Enlightened,
       _ => Proficiency::Burned
     }
-  }
-
-  pub fn due_time(&self) -> Option<DateTime<Utc>> {
-    let duration = match self.level {
-      x if x <= 0 => return None,
-      x if x == 1 => Duration::hours(4),
-      x if x == 2 => Duration::hours(8),
-      x if x == 3 => Duration::days(1),
-      x if x == 4 => Duration::days(3),
-      x if x == 5 => Duration::days(7),
-      x if x == 6 => Duration::days(14),
-      x if x == 7 => Duration::days(30),
-      _ => Duration::days(122),
-    };
-
-    self.last_study_time.map(|x| x + duration)
   }
 
   pub fn correctness(&self) -> Option<f64> {
@@ -122,7 +106,7 @@ impl Card {
   }
 
   pub fn is_due_in<T: TimeZone>(&self, date_time: DateTime<T>) -> bool {
-    self.due_time().map(|x| x >= date_time).unwrap_or(false)
+    self.due_time.map(|x| x >= date_time).unwrap_or(false)
   }
 
   pub fn advance_level(&mut self) -> &mut Card {
@@ -144,7 +128,7 @@ impl Card {
   pub fn learn(&mut self) -> &mut Card {
     if self.proficiency() == Proficiency::Inactive {
       self.level = 1;
-      self.last_study_time = Some(Utc::now());
+      self.due_time = Some(Utc::now() + Duration::hours(4));
     }
 
     self
@@ -160,7 +144,17 @@ impl Card {
       }
 
       self.total_count += 1;
-      self.last_study_time = Some(Utc::now());
+      self.due_time = Some(Utc::now() + match self.level {
+        x if x <= 0 => panic!(),
+        x if x == 1 => Duration::hours(4),
+        x if x == 2 => Duration::hours(8),
+        x if x == 3 => Duration::days(1),
+        x if x == 4 => Duration::days(3),
+        x if x == 5 => Duration::days(7),
+        x if x == 6 => Duration::days(14),
+        x if x == 7 => Duration::days(30),
+        _ => Duration::days(122)
+      });
     }
 
     self

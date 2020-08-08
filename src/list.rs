@@ -63,7 +63,7 @@ impl List {
         let level = iter.next()
           .and_then(|x| serde_json::from_value::<i8>(x).ok())
           .unwrap_or(0);
-        let last_study_time = iter.next()
+        let due_time = iter.next()
           .and_then(|x| serde_json::from_value::<String>(x).ok())
           .and_then(|x| DateTime::parse_from_rfc3339(&x).ok())
           .map(|date_time| date_time.with_timezone(&Utc));
@@ -77,7 +77,7 @@ impl List {
         let mut card = Card::new(front, back, notes);
 
         card.level = level;
-        card.last_study_time = last_study_time;
+        card.due_time = due_time;
         card.correct_count = correct_count;
         card.total_count = total_count;
 
@@ -97,7 +97,7 @@ impl List {
           card.back,
           card.notes,
           card.level,
-          card.last_study_time.map(|x| x.to_rfc3339()),
+          card.due_time.map(|x| x.to_rfc3339()),
           card.correct_count,
           card.total_count
         ])).unwrap()
