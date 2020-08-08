@@ -1,6 +1,6 @@
 use chrono::{offset::Utc, DateTime, Duration, TimeZone};
 use crate::list::List;
-use std::{path::PathBuf, fmt::Display};
+use std::{path::PathBuf, fmt::Display, collections::HashMap, io::Result};
 use colored::{ColoredString, Colorize};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -163,12 +163,54 @@ impl Card {
   }
 }
 
-pub fn get_cards<I: IntoIterator<Item = List>>(lists: I) -> impl Iterator<Item = (String, Card)> {
+pub fn get_cards<I: IntoIterator<Item = List>>(lists: I) -> impl Iterator<Item = (PathBuf, Card)> {
   lists.into_iter()
   .filter_map(|list| list.cards().ok().map(|cards| (list, cards)))
   .map(|(list, cards)| {
-    let name = list.name().to_string();
+    let name = list.path().to_path_buf();
     cards.map(move|card| (name.clone(), card))
   })
   .flatten()
+}
+
+pub fn update_cards<I: IntoIterator<Item = (PathBuf, Card)>>(cards: I) -> Result<()> {
+  let mut lists = HashMap::new();
+
+  for (path, card) in cards {
+    if let Some((_, cards)) = {
+      if !lists.contains_key(&path) {
+        let list = List::new(&path);
+        let cards = if let Some(list) = list.as_ref() {
+          Some(
+            list.cards()?
+            .filter_map(|card| card.line_number.map(|x| (x, card)))
+            .collect::<HashMap<_, _>>()
+          )
+        } else {
+          None
+        };
+
+        if let (Some(list), Some(cards)) = (list, cards) {
+          lists.insert(path.clone(), (list, cards));
+        }
+      }
+
+      lists.get_mut(&path)
+    } {
+      if let Some(line_number) = card.line_number {
+        if cards.contains_key(&line_number) {
+          cards.insert(line_number, card);
+        }
+      }
+    }
+  }
+
+  for (_, (list, cards)) in lists.into_iter() {
+    let mut cards = cards.into_iter().collect::<Vec<_>>();
+    cards.sort_by_key(|(i, _)| *i);
+
+    list.save_cards(cards.into_iter().map(|(_, card)| card))?;
+  }
+
+  Ok(())
 }
