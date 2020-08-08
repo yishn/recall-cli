@@ -163,8 +163,12 @@ impl Card {
   }
 }
 
-pub fn get_cards<I: IntoIterator<Item = List>>(lists: I) -> impl Iterator<Item = Card> {
+pub fn get_cards<I: IntoIterator<Item = List>>(lists: I) -> impl Iterator<Item = (String, Card)> {
   lists.into_iter()
-  .filter_map(|list| list.cards().ok())
+  .filter_map(|list| list.cards().ok().map(|cards| (list, cards)))
+  .map(|(list, cards)| {
+    let name = list.name().to_string();
+    cards.map(move|card| (name.clone(), card))
+  })
   .flatten()
 }

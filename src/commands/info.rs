@@ -61,7 +61,9 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
       .map(|names| names.contains(&list.name()))
       .unwrap_or(true)
     })
-  ).collect::<Vec<_>>();
+  )
+  .map(|(_, card)| card)
+  .collect::<Vec<_>>();
 
   let total_count = cards.len();
 
