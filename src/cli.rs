@@ -8,7 +8,7 @@ pub fn print_strip<S: Display, T: Display>(symbol: S, text: T) {
 }
 
 pub fn print_header_strip<T: Display>(text: T) {
-  print_strip("#", text.to_string().bold());
+  print_strip("#", text.to_string().bold().bright_white());
 }
 
 pub fn print_error_strip<T: Display>(text: T) {

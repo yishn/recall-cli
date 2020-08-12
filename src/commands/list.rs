@@ -1,4 +1,5 @@
 use clap::{ArgMatches, App, Arg, SubCommand};
+use colored::Colorize;
 use super::{RecallError, Result};
 use crate::{app, cli};
 use crate::list::{List, get_lists, list_exists};
@@ -42,7 +43,7 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     ("add", Some(matches)) => add(matches),
     ("remove", Some(matches)) => remove(matches),
     ("append", Some(matches)) => append(matches),
-    ("", Some(matches)) => list(matches),
+    ("", _) => list(),
     _ => unimplemented!()
   }
 }
@@ -126,7 +127,7 @@ fn append(matches: &ArgMatches) -> Result {
   Ok(())
 }
 
-fn list(_matches: &ArgMatches) -> Result {
+fn list() -> Result {
   // Get lists
 
   let lists = get_lists(".")
@@ -140,7 +141,18 @@ fn list(_matches: &ArgMatches) -> Result {
   if lists.len() > 0 {
     cli::print_bullet_list(
       lists.iter()
-      .map(|list| list.name())
+      .map(|list| {
+        format!(
+          "{} {}",
+          list.name(),
+          list.cards().ok()
+            .map(|cards| cards.filter(|card| card.is_due()).count())
+            .and_then(|x| if x == 0 { None } else { Some(x) })
+            .map(|x| format!("({})", x))
+            .unwrap_or_else(|| String::new())
+            .bright_red()
+        )
+      })
     );
   } else {
     println!("No lists found.");
