@@ -106,11 +106,11 @@ impl Card {
   }
 
   pub fn is_due(&self) -> bool {
-    self.is_due_in(Utc::now())
+    self.is_due_at(Utc::now())
   }
 
-  pub fn is_due_in<T: TimeZone>(&self, date_time: DateTime<T>) -> bool {
-    self.due_time.map(|x| x >= date_time).unwrap_or(false)
+  pub fn is_due_at<T: TimeZone>(&self, date_time: DateTime<T>) -> bool {
+    self.due_time.map(|x| x <= date_time).unwrap_or(false)
   }
 
   pub fn review(&mut self, remembered: bool) -> &mut Card {

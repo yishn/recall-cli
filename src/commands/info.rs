@@ -105,12 +105,12 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   let due_count = cards.iter().filter(|card| card.is_due()).count();
   let due_next_hour_count = cards.iter()
     .filter(|card| {
-      card.is_due_in(Utc::now() + Duration::hours(1))
+      card.is_due_at(Utc::now() + Duration::hours(1))
     })
     .count();
   let due_tomorrow_count = cards.iter()
     .filter(|card| {
-      card.is_due_in(Utc::now() + Duration::days(1))
+      card.is_due_at(Utc::now() + Duration::days(1))
     })
     .count();
 

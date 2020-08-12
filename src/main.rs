@@ -23,7 +23,7 @@ fn main() {
     ("info", Some(matches)) => commands::info::dispatch(matches),
     ("learn", Some(matches)) => commands::learn::dispatch(matches),
     ("list", Some(matches)) => commands::list::dispatch(matches),
-    ("study", Some(matches)) => commands::review::dispatch(matches),
+    ("review", Some(matches)) => commands::review::dispatch(matches),
     _ => app.print_help().map_err(|_| RecallError::new("Printing help failed")),
   };
 
