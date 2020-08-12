@@ -163,6 +163,7 @@ pub fn loop_cards(
       println!("  {}", card.front);
       prompt_with_prefix("", "")?;
       println!("{} {}", "Back:".bright_white(), card.back);
+      println!();
       println!("{} {}", "Notes:".bright_white(), card.notes);
       println!();
 
