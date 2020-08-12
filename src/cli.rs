@@ -168,13 +168,13 @@ pub fn loop_cards(
 
       let choice = prompt_multiple_choice(
         format_args!(
-          "show {}gain, {}dit notes, {}ext card, {}ancel",
+          "show {}gain, {}dit notes, {}ext card - {}inish",
           "a".bold().cyan().underline(),
           "e".bold().cyan().underline(),
           "n".bold().cyan().underline(),
-          "c".bold().cyan().underline()
+          "f".bold().cyan().underline()
         ),
-        &['a', 'e', 'n', 'c']
+        &['a', 'e', 'n', 'f']
       )?;
 
       match choice {
@@ -195,10 +195,7 @@ pub fn loop_cards(
 
           break;
         },
-        'c' => {
-          cards.clear();
-          break;
-        },
+        'f' => break,
         'e' => {
           let notes = prompt_multiline_with_initial("Notes", (&card.notes, ""))?;
           card.notes = notes;

@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use clap::{ArgMatches, App, Arg, SubCommand};
 use rand::seq::SliceRandom;
 use super::{RecallError, Result};
-use crate::{cli, list::{get_lists, list_exists}, app, card::{Proficiency, get_cards}};
+use crate::{cli, list::{get_lists, list_exists}, app, card::{Proficiency, get_cards, update_cards}};
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
   SubCommand::with_name("learn")
@@ -24,16 +24,16 @@ pub fn subcommand<'a>() -> App<'a, 'static> {
 pub fn dispatch(matches: &ArgMatches) -> Result {
   let names = matches.values_of("names")
     .map(|names| names.collect::<Vec<_>>());
-  let count = matches.value_of("count")
-    .map(|x| Ok(x))
-    .map(|count| count.and_then(|x| {
-      x.parse::<usize>()
-      .map_err(|_| RecallError::new("Could not parse `count` option."))
-    }));
-
-  if let Some(Err(err)) = count {
-    return Err(err);
-  }
+  let count = Ok(matches.value_of("count"))
+    .and_then(|count| {
+      count
+      .map(|x| {
+        x.parse::<usize>()
+        .map(|x| Some(x))
+        .map_err(|_| RecallError::new("Could not parse `count` option."))
+      })
+      .unwrap_or(Ok(None))
+    })?;
 
   let has_invalid_names = names.as_ref()
     .map(|names| names.iter().any(|name| !list_exists(".", name)))
@@ -78,7 +78,7 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     let mut rng = rand::thread_rng();
     cards.shuffle(&mut rng);
 
-    if let Some(Ok(count)) = count {
+    if let Some(count) = count {
       cards.into_iter().take(count).collect::<VecDeque<_>>()
     } else {
       cards.into_iter().collect::<VecDeque<_>>()
@@ -88,13 +88,24 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   println!();
   cli::print_header_strip("Learning");
 
-  println!();
+  if cards.len() > 0 {
+    println!();
+    let mut cards = cli::loop_cards(cards)?;
+    println!();
+    println!("Learned {} new card(s).", cards.len());
+    println!();
 
-  let cards = cli::loop_cards(cards)?;
+    for &mut (_, ref mut card, remembered) in cards.iter_mut() {
+      card.review(remembered);
+    }
 
-  println!();
-  println!("Learned {} new card(s).", cards.len());
-  println!();
+    update_cards(cards.into_iter().map(|(path, card, _)| (path, card)))
+    .map_err(|_| RecallError::new("Updating cards failed."))?;
+  } else {
+    println!();
+    println!("No new cards to learn.");
+    println!();
+  }
 
   Ok(())
 }

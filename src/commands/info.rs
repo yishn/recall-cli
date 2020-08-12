@@ -65,6 +65,9 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
   .map(|(_, card)| card)
   .collect::<Vec<_>>();
 
+  println!();
+  cli::print_header_strip("Info");
+
   let total_count = cards.len();
 
   if total_count == 0 {
@@ -137,9 +140,6 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
       col2_width = col2_width
     );
   };
-
-  println!();
-  cli::print_header_strip("Info");
 
   if let Some(names) = names {
     println!("Lists: {}", names.join(", "));

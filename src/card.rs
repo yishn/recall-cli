@@ -113,32 +113,16 @@ impl Card {
     self.due_time.map(|x| x >= date_time).unwrap_or(false)
   }
 
-  pub fn advance_level(&mut self) -> &mut Card {
-    if self.proficiency() != Proficiency::Inactive {
-      self.level = 9.min(self.level + 1);
-    }
-
-    self
-  }
-
-  pub fn fallback_level(&mut self) -> &mut Card {
-    if self.proficiency() != Proficiency::Inactive {
-      self.level = 1.max(self.level - 2);
-    }
-
-    self
-  }
-
   pub fn review(&mut self, remembered: bool) -> &mut Card {
     if self.proficiency() == Proficiency::Inactive {
       self.level = 1;
       self.due_time = Some(Utc::now() + Duration::hours(4));
     } else {
       if remembered {
-        self.advance_level();
+        self.level = 9.min(self.level + 1);
         self.correct_count += 1;
       } else {
-        self.fallback_level();
+        self.level = 1.max(self.level - 2);
       }
 
       self.total_count += 1;
@@ -151,7 +135,8 @@ impl Card {
         x if x == 5 => Duration::days(7),
         x if x == 6 => Duration::days(14),
         x if x == 7 => Duration::days(30),
-        _ => Duration::days(122)
+        x if x == 8 => Duration::days(122),
+        _ => Duration::days(182)
       });
     }
 
@@ -173,7 +158,7 @@ pub fn update_cards<I: IntoIterator<Item = (PathBuf, Card)>>(cards: I) -> Result
   let mut lists = HashMap::new();
 
   for (path, card) in cards {
-    if let Some((_, cards)) = {
+    let list_entry = {
       if !lists.contains_key(&path) {
         let list = List::new(&path);
         let cards = if let Some(list) = list.as_ref() {
@@ -192,11 +177,11 @@ pub fn update_cards<I: IntoIterator<Item = (PathBuf, Card)>>(cards: I) -> Result
       }
 
       lists.get_mut(&path)
-    } {
-      if let Some(line_number) = card.line_number {
-        if cards.contains_key(&line_number) {
-          cards.insert(line_number, card);
-        }
+    };
+
+    if let (Some((_, cards)), Some(line_number)) = (list_entry, card.line_number) {
+      if cards.contains_key(&line_number) {
+        cards.insert(line_number, card);
       }
     }
   }
