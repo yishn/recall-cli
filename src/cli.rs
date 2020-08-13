@@ -169,7 +169,7 @@ pub fn loop_cards(
 
       let choice = prompt_multiple_choice(
         format_args!(
-          "show {}gain, {}dit notes, {}ext card - {}inish",
+          "show {}gain, {}dit, {}ext card - {}inish",
           "a".bold().cyan().underline(),
           "e".bold().cyan().underline(),
           "n".bold().cyan().underline(),
@@ -198,7 +198,10 @@ pub fn loop_cards(
         },
         'f' => break,
         'e' => {
+          let back = prompt_multiline_with_initial("Back", (&card.back, ""))?;
           let notes = prompt_multiline_with_initial("Notes", (&card.notes, ""))?;
+
+          card.back = back;
           card.notes = notes;
         },
         _ => unreachable!()
