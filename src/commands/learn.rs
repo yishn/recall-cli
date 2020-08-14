@@ -1,4 +1,3 @@
-use std::collections::VecDeque;
 use clap::{ArgMatches, App, Arg, SubCommand};
 use rand::seq::SliceRandom;
 use super::{RecallError, Result};
@@ -79,10 +78,10 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
     cards.shuffle(&mut rng);
 
     if let Some(count) = count {
-      cards.into_iter().take(count).collect::<VecDeque<_>>()
-    } else {
-      cards.into_iter().collect::<VecDeque<_>>()
+      cards.truncate(count);
     }
+
+    cards
   };
 
   println!();

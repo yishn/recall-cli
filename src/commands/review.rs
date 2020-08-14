@@ -2,7 +2,6 @@ use clap::{ArgMatches, App, Arg, SubCommand};
 use super::{RecallError, Result};
 use crate::{list::{get_lists, list_exists}, cli, card::{update_cards, get_cards}, app};
 use rand::prelude::SliceRandom;
-use std::collections::VecDeque;
 
 pub fn subcommand<'a>() -> App<'a, 'static> {
   SubCommand::with_name("review")
@@ -60,7 +59,7 @@ pub fn dispatch(matches: &ArgMatches) -> Result {
 
     let mut rng = rand::thread_rng();
     cards.shuffle(&mut rng);
-    cards.into_iter().collect::<VecDeque<_>>()
+    cards
   };
 
   println!();

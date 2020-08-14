@@ -1,6 +1,7 @@
-use std::{collections::{VecDeque, HashSet}, fmt::Display, path::PathBuf};
+use std::{collections::HashSet, fmt::Display, path::PathBuf};
 use colored::Colorize;
 use rustyline::{error::ReadlineError, Editor, KeyPress, Cmd};
+use rand::seq::SliceRandom;
 use crate::{card::Card, commands::RecallError, list::List};
 
 pub fn print_strip<S: Display, T: Display>(symbol: S, text: T) {
@@ -127,14 +128,17 @@ pub fn progress_bar(progress: f64, width: u32) -> impl Display {
 }
 
 pub fn loop_cards(
-  mut cards: VecDeque<(PathBuf, Card)>
+  mut cards: Vec<(PathBuf, Card)>
 ) -> Result<Vec<(PathBuf, Card, bool)>, RecallError> {
   let total_count = cards.len();
   let mut result = Vec::new();
   let mut shown_again = HashSet::new();
   let mut first = true;
+  let mut rng = rand::thread_rng();
 
-  while let Some((path, mut card)) = cards.pop_front() {
+  cards.shuffle(&mut rng);
+
+  while let Some((path, mut card)) = cards.pop() {
     let list = List::new(&path);
     if let None = list { continue; }
 
@@ -181,7 +185,8 @@ pub fn loop_cards(
       match choice {
         'a' => {
           shown_again.insert((path.clone(), card.line_number));
-          cards.push_back((path, card));
+          cards.push((path, card));
+          cards.shuffle(&mut rng);
 
           break;
         },
