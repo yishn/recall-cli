@@ -184,9 +184,17 @@ pub fn loop_cards(
 
       match choice {
         'a' => {
-          shown_again.insert((path.clone(), card.line_number));
+          let key = (path.clone(), card.line_number);
+
           cards.push((path, card));
           cards.shuffle(&mut rng);
+
+          let len = cards.len();
+          if cards.get(len - 1).map(|(path, card)| (path, card.line_number)) == Some((&key.0, key.1)) {
+            cards.swap(len - 1, 0)
+          }
+
+          shown_again.insert(key);
 
           break;
         },
